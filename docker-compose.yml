@@ -1,0 +1,77 @@
+version: '2'
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: ${NGINX_NAME}
+    restart: always
+    volumes:
+      # www
+      - ./www/:/var/www/html/
+      # configs
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      # logs
+      - ./nginx/logs:/var/log/nginx/
+    ports:
+      - "9000:80"
+    environment:
+      - TZ=${MY_TZ}
+    links:
+      - "php:php-fpm"
+    networks:
+      - frontend
+
+  php:
+    build: .
+    container_name: ${PHP_NAME}
+    restart: always
+    volumes:
+      - ./www/:/var/www/html/
+      - ./php/php.ini:/usr/local/etc/php/php.ini
+    environment:
+      - TZ=${MY_TZ}
+      - MYSQL_HOST=${MYSQL_LINK}
+      - MYSQL_DATABASE=${MYSQL_DB}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASS}
+    links:
+      - "mysql:${MYSQL_LINK}"
+      - "redis:redis"
+    networks:
+      - backend
+      - frontend
+
+  mysql:
+    image: mysql:latest
+    container_name: ${MYSQL_NAME}
+    restart: always
+    environment:
+      - TZ=${MY_TZ}
+      - MYSQL_DATABASE=${MYSQL_DB}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASS}
+    command: ['mysqld', '--character-set-server=utf8']
+    networks:
+      - backend
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: ${PHPMYADMIN_NAME}
+    restart: "no"
+    links:
+      - "mysql:db"
+    ports:
+      - "9001:80"
+    networks:
+      - backend
+
+  redis:
+    image: redis:latest
+    container_name: ${REDIS_NAME}
+    restart: always
+    environment:
+      - TZ=${MY_TZ} 
+    networks:
+      - backend
+
+networks:
+  backend:
+  frontend:
