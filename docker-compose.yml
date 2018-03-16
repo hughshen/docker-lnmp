@@ -25,9 +25,11 @@ services:
     build: .
     container_name: ${PHP_NAME}
     restart: always
+    working_dir: /var/www/html/
     volumes:
       - ./www/:/var/www/html/
       - ./php/php.ini:/usr/local/etc/php/php.ini
+      - ./php/php-fpm.conf:/etc/php7/php-fpm.conf
     environment:
       - TZ=${MY_TZ}
       - MYSQL_HOST=${MYSQL_LINK}
