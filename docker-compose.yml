@@ -28,7 +28,7 @@ services:
     working_dir: /var/www/html/
     volumes:
       - ./www/:/var/www/html/
-      - ./php/php.ini:/usr/local/etc/php/php.ini
+      - ./php/php.ini:/etc/php7/php.ini
       - ./php/php-fpm.conf:/etc/php7/php-fpm.conf
     environment:
       - TZ=${MY_TZ}
